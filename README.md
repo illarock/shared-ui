@@ -315,6 +315,8 @@ npm run build
 npm publish --access public
 ```
 
+> **Important:** After changing `package.json`, always run `npm install` locally and commit the updated `package-lock.json`. GitHub Actions uses `npm ci`, which requires both files to be in sync.
+
 ---
 
 ## CI/CD
