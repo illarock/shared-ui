@@ -1,0 +1,6 @@
+/* Theme tokens, base styles, and component utilities from @shared/ui.
+   Import this after tailwindcss in your app globals.css. */
+@import "./theme.css";
+@import "./base.css";
+@import "./components.css";
+@import "./utilities.css";

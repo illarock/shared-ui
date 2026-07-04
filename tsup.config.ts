@@ -33,5 +33,6 @@ export default defineConfig({
   onSuccess: async () => {
     const { cp } = await import("node:fs/promises")
     await cp("src/styles", "dist/styles", { recursive: true })
+    await cp("src/styles/preset.css", "dist/preset.css")
   },
 })

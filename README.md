@@ -84,16 +84,22 @@ npm install -D tailwindcss @tailwindcss/postcss
 Replace the contents of `app/globals.css` with:
 
 ```css
-@import "@shared/ui/globals.css";
+@import "tailwindcss";
+@import "@shared/ui/styles.css";
 
 /* Scan your app for Tailwind classes */
 @source "./**/*.{ts,tsx}";
-
-/* Scan the published package so component classes are included */
-@source "../node_modules/@shared/ui/dist/**/*.{js,ts,tsx}";
 ```
 
-`@shared/ui/globals.css` includes Tailwind, shadcn theme tokens, typography plugin, and your design system styles (theme, base, components, utilities).
+`@shared/ui/styles.css` is **pre-built** at publish time and includes theme tokens, shadcn base styles, and all utility classes used by package components (e.g. `bg-primary`, `rounded-md`). You do **not** need `@source` for `node_modules` — that does not work reliably in Tailwind v4.
+
+Import it once in `app/layout.tsx`:
+
+```tsx
+import "./globals.css";
+```
+
+> **Note:** `@import "@shared/ui/globals.css"` also works (same compiled file). Avoid `@shared/ui/styles/globals.css` — that path serves raw source files without component utilities.
 
 ### 4. Enable transpilation
 
@@ -109,14 +115,7 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
-### 5. Import the stylesheet in your layout
-
-```tsx
-// app/layout.tsx
-import "./globals.css";
-```
-
-### 6. Use components
+### 5. Use components
 
 ```tsx
 import { Button } from "@shared/ui/button";
@@ -151,8 +150,8 @@ Shorthand imports (`@shared/ui/button`) and explicit paths (`@shared/ui/componen
 
 | Import path | Description |
 |---|---|
-| `@shared/ui/globals.css` | Full stylesheet entry (Tailwind + theme) |
-| `@shared/ui/styles/*` | Individual style partials (`theme.css`, `base.css`, …) |
+| `@shared/ui/styles.css` | **Pre-built CSS** — theme + component utilities (use this) |
+| `@shared/ui/globals.css` | Alias for `styles.css` |
 | `@shared/ui/button` | Shorthand for a component |
 | `@shared/ui/components/<name>` | Explicit component path |
 | `@shared/ui/lib/utils` | `cn()` helper |
@@ -184,9 +183,9 @@ Design tokens live in `src/styles/theme.css` inside this repo. They are publishe
 **Extending styles in an app** — add app-specific utilities after the import:
 
 ```css
-@import "@shared/ui/globals.css";
+@import "tailwindcss";
+@import "@shared/ui/styles.css";
 @source "./**/*.{ts,tsx}";
-@source "../node_modules/@shared/ui/dist/**/*.{js,ts,tsx}";
 
 /* App-only overrides */
 @layer utilities {
@@ -406,6 +405,28 @@ Each app is fully independent:
 ---
 
 ## Troubleshooting
+
+### Components look unstyled / no theme
+
+Use the **compiled** stylesheet — component utilities are pre-built at publish time:
+
+```css
+@import "tailwindcss";
+@import "@shared/ui/styles.css";
+
+@source "./**/*.{ts,tsx}";
+```
+
+**Do not use** `@source "../node_modules/@shared/ui/..."` — Tailwind v4 does not scan `node_modules` reliably.
+
+**Do not import** `@shared/ui/styles/globals.css` in `layout.tsx` — that is raw source CSS without component utilities. Only import `./globals.css` in your layout.
+
+After updating `shared-ui`, reinstall so `dist/styles.css` is rebuilt:
+
+```bash
+rm -rf node_modules/@shared/ui
+npm install github:illarock/shared-ui
+```
 
 ### `Module not found: Can't resolve '@shared/ui/button'`
 
