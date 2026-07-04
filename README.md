@@ -1,34 +1,31 @@
 # @shared/ui
 
-A shared, versioned UI component library built with [shadcn/ui](https://ui.shadcn.com), [Tailwind CSS v4](https://tailwindcss.com), and [Radix UI](https://www.radix-ui.com). Published to npm so multiple Next.js apps can install it independently with semantic versioning.
+A shared, versioned UI component library built with [shadcn/ui](https://ui.shadcn.com), [Tailwind CSS v4](https://tailwindcss.com), and [Radix UI](https://www.radix-ui.com). Published to npm (or installable from GitHub) so multiple Next.js apps can consume it with independent semver.
 
 ```
 app1  ──►  npm install @shared/ui@1.2.0
-app2  ──►  npm install @shared/ui@1.0.0   ← different version, no problem
+app2  ──►  npm install github:illarock/shared-ui#main
 ```
 
 ## Why this approach?
 
-| Approach | Versioning | Rollback | Per-app updates | Maintenance |
-|---|---|---|---|---|
-| Git submodules | Manual | Hard | Coupled | High friction |
-| Install from Git URL | Tags only | Awkward | Coupled | No changelog |
-| **Published npm package** | **Semver** | **`npm install @shared/ui@1.1.0`** | **Independent** | **Changesets + CI** |
-
-Each app pins its own version. You ship UI changes on a schedule that does not block every consumer at once.
+| Approach | Versioning | Rollback | Per-app updates |
+|---|---|---|---|
+| Git submodules | Manual | Hard | Coupled |
+| Install from Git URL | Tags only | Awkward | Coupled |
+| **Published package** | **Semver** | **`npm install @shared/ui@1.1.0`** | **Independent** |
 
 ---
 
 ## Requirements
 
-**Consuming apps (Next.js)**
+**Consuming apps**
 
 - Next.js 15+ (App Router)
 - React 18 or 19
-- Tailwind CSS v4
-- `@tailwindcss/postcss`
+- Tailwind CSS v4 + `@tailwindcss/postcss`
 
-**This repository (development)**
+**This repo**
 
 - Node.js 20+
 - npm
@@ -37,75 +34,59 @@ Each app pins its own version. You ship UI changes on a schedule that does not b
 
 ## Quick start (Next.js app)
 
-### 1. Install the package
-
-**From npm (recommended):**
+### 1. Install
 
 ```bash
+# npm (recommended)
 npm install @shared/ui
-```
 
-**From GitHub:**
-
-```bash
+# GitHub
 npm install github:illarock/shared-ui
 ```
 
-The `prepare` script builds `dist/` automatically on install. Re-install after updates:
+The `prepare` script builds `dist/` on install. After updates:
 
 ```bash
-npm install github:illarock/shared-ui --force
+rm -rf node_modules/@shared/ui && npm install github:illarock/shared-ui
 ```
 
-Peer dependencies are installed automatically (`react`, `react-dom`, `tailwindcss`). The package bundles its own runtime deps (`clsx`, `radix-ui`, `shadcn`, etc.).
-
-### 2. Configure PostCSS
-
-Create or update `postcss.config.mjs`:
+### 2. PostCSS
 
 ```js
+// postcss.config.mjs
 const config = {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  },
+  plugins: { "@tailwindcss/postcss": {} },
 };
-
 export default config;
 ```
-
-Install if missing:
 
 ```bash
 npm install -D tailwindcss @tailwindcss/postcss
 ```
 
-### 3. Set up global styles
-
-Replace the contents of `app/globals.css` with:
+### 3. Global styles
 
 ```css
+/* app/globals.css */
 @import "tailwindcss";
 @import "@shared/ui/styles.css";
 
-/* Scan your app for Tailwind classes */
 @source "./**/*.{ts,tsx}";
 ```
 
-`@shared/ui/styles.css` is **pre-built** at publish time and includes theme tokens, shadcn base styles, and all utility classes used by package components (e.g. `bg-primary`, `rounded-md`). You do **not** need `@source` for `node_modules` — that does not work reliably in Tailwind v4.
-
-Import it once in `app/layout.tsx`:
-
 ```tsx
+// app/layout.tsx
 import "./globals.css";
 ```
 
-> **Note:** `@import "@shared/ui/globals.css"` also works (same compiled file). Avoid `@shared/ui/styles/globals.css` — that path serves raw source files without component utilities.
+`@shared/ui/styles.css` is **pre-built** and includes theme tokens, shadcn styles, and all utility classes used by package components (`bg-primary`, `rounded-md`, etc.).
 
-### 4. Enable transpilation
+> Use `@shared/ui/styles.css` or `@shared/ui/globals.css` (alias). **Do not** import `@shared/ui/styles/globals.css` — that is raw source without compiled utilities.
 
-In `next.config.ts`:
+### 4. Next.js config
 
 ```ts
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -115,249 +96,191 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 ```
 
+If Turbopack fails to resolve `@shared/ui/*` imports during `next build`, use webpack:
+
+```bash
+next build --webpack
+```
+
 ### 5. Use components
 
 ```tsx
 import { Button } from "@shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@shared/ui/card";
+import { Badge } from "@shared/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@shared/ui/card";
 
 export default function Page() {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Hello</CardTitle>
-        <CardDescription>From @shared/ui</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex gap-2">
         <Button>Click me</Button>
+        <Badge>New</Badge>
       </CardContent>
     </Card>
   );
 }
 ```
 
-Shorthand imports (`@shared/ui/button`) and explicit paths (`@shared/ui/components/button`) both work.
-
 ---
 
 ## Package exports
 
-| Import path | Description |
+| Import | Description |
 |---|---|
-| `@shared/ui/styles.css` | **Pre-built CSS** — theme + component utilities (use this) |
+| `@shared/ui/styles.css` | Pre-built CSS (theme + component utilities) |
 | `@shared/ui/globals.css` | Alias for `styles.css` |
-| `@shared/ui/button` | Shorthand for a component |
-| `@shared/ui/components/<name>` | Explicit component path |
+| `@shared/ui/button` | Component (shorthand) |
+| `@shared/ui/components/button` | Component (explicit) |
 | `@shared/ui/lib/utils` | `cn()` helper |
-| `@shared/ui/hooks/*` | Shared hooks (when added) |
+| `@shared/ui/hooks/*` | Hooks (when added) |
 
-TypeScript types are included for all JS exports.
+Exports are auto-generated on build for each component in `src/components/`.
 
 ---
 
 ## Theming
 
-Design tokens live in `src/styles/theme.css` inside this repo. They are published as part of `globals.css`.
+Tokens live in `src/styles/theme.css` and are compiled into `dist/styles.css`.
 
-**Light / dark mode** uses the `.dark` class on a parent element (standard shadcn pattern):
+**Dark mode** — add `.dark` to a parent:
 
 ```tsx
 <html lang="en" className={isDark ? "dark" : ""}>
 ```
 
-**Custom fonts** — set CSS variables in your app layout or override in your own CSS:
+**Override fonts** in your app:
 
 ```css
 :root {
   --font-sans: "Your Font", sans-serif;
-  --font-serif: "Your Heading Font", sans-serif;
 }
 ```
-
-**Extending styles in an app** — add app-specific utilities after the import:
-
-```css
-@import "tailwindcss";
-@import "@shared/ui/styles.css";
-@source "./**/*.{ts,tsx}";
-
-/* App-only overrides */
-@layer utilities {
-  .my-app-banner {
-    @apply bg-primary text-primary-foreground;
-  }
-}
-```
-
----
-
-## Updating the package in an app
-
-```bash
-# Check current version
-npm ls @shared/ui
-
-# Update to latest minor/patch (respects semver range in package.json)
-npm update @shared/ui
-
-# Pin a specific version
-npm install @shared/ui@1.2.0
-
-# Roll back
-npm install @shared/ui@1.1.0
-```
-
-Review the [changelog](./CHANGELOG.md) (generated by Changesets) before upgrading across major versions.
-
----
-
-## Local development (linking before publish)
-
-To test the package in an app before publishing:
-
-```bash
-# In this repo
-npm run build
-
-# In your Next.js app
-npm install ../shared-ui
-# or
-npm install file:../shared-ui
-```
-
-Then use `@shared/ui` imports as normal. Re-run `npm run build` in this repo after changes.
 
 ---
 
 ## Developing this library
 
-### Project structure
+### Structure
 
 ```
 shared-ui/
 ├── src/
-│   ├── components/       # shadcn UI components
-│   ├── hooks/            # shared React hooks
-│   ├── lib/
-│   │   └── utils.ts      # cn() helper
+│   ├── components/     # shadcn components (button, card, badge, …)
+│   ├── hooks/
+│   ├── lib/utils.ts
 │   └── styles/
-│       ├── globals.css   # Tailwind entry
-│       ├── theme.css     # design tokens
-│       ├── base.css      # element defaults
+│       ├── build.css   # Tailwind build entry (dev only)
+│       ├── globals.css # Source tailwind entry (dev only)
+│       ├── theme.css
+│       ├── base.css
 │       ├── components.css
 │       └── utilities.css
-├── dist/                 # build output (published to npm)
-├── components.json       # shadcn CLI config
-├── tsup.config.ts
-└── .changeset/
+├── dist/               # Published output (gitignored)
+│   ├── components/
+│   ├── lib/
+│   └── styles.css      # Pre-built CSS for consumers
+├── scripts/
+│   └── generate-exports.mjs
+├── components.json     # shadcn CLI config
+└── tsup.config.ts
 ```
 
 ### Scripts
 
 | Command | Description |
 |---|---|
-| `npm run build` | Compile components to `dist/` and copy styles |
-| `npm run dev` | Watch mode for `tsup` |
-| `npm run typecheck` | TypeScript check without emit |
-| `npm run changeset` | Create a changeset for the next release |
-| `npm run version` | Apply changesets and bump version |
-| `npm run release` | Build + publish to npm (CI runs this) |
+| `npm run build` | Build JS (`dist/components/`) + CSS (`dist/styles.css`) + exports |
+| `npm run dev` | Watch mode for components |
+| `npm run typecheck` | TypeScript check |
+| `npm run changeset` | Create a changeset for release |
+| `npm run release` | Build + publish to npm |
 
 ### Adding components with shadcn CLI
 
-New components are added to **this repo**, built, and published. Apps pick them up on the next install.
+Run from the **repo root**:
 
 ```bash
-# From the root of this repository
 npx shadcn@latest add dialog
 npx shadcn@latest add input label
 ```
 
-The CLI reads `components.json` and installs files into `src/components/`.
+`components.json` aliases (required for CLI):
+
+```json
+{
+  "aliases": {
+    "components": "#components",
+    "ui": "#components",
+    "lib": "#lib",
+    "hooks": "#hooks",
+    "utils": "#lib/utils"
+  }
+}
+```
 
 After adding components:
 
 ```bash
-npm run build
-npm run changeset   # document the change
+npm run build        # rebuilds dist/ + updates package.json exports
+npm run changeset    # document the change for release
 ```
 
-### Build output
+The build pipeline:
 
-`tsup` compiles each component and `lib/utils` to ESM with TypeScript declarations. Styles are copied verbatim to `dist/styles/`. Only `dist/` is published (`files` field in `package.json`).
+1. **tsup** — compiles `src/components/*.tsx` → `dist/components/*.js` + types
+2. **generate-exports.mjs** — adds `./button`, `./components/button`, etc. to `package.json`
+3. **@tailwindcss/cli** — compiles `src/styles/build.css` → `dist/styles.css` with all component utilities
+
+---
+
+## Publishing
+
+Uses [Changesets](https://github.com/changesets/changesets). See [Publishing & versioning](#publishing--versioning) below for npm setup.
+
+```bash
+npm run changeset    # describe change
+# merge Version Packages PR
+# CI publishes automatically
+```
+
+---
+
+## Local linking
+
+```bash
+# In shared-ui
+npm run build
+
+# In your Next.js app
+npm install file:../shared-ui
+```
+
+Re-run `npm run build` in `shared-ui` after every change.
 
 ---
 
 ## Publishing & versioning
 
-This project uses [Changesets](https://github.com/changesets/changesets) for semver and changelogs.
+### One-time npm setup
 
-### One-time npm setup (required before first publish)
-
-The `E404 Not Found - PUT @shared/ui` error means **the `@shared` scope does not exist on npm** (or your token cannot publish to it). Fix this before CI can publish:
-
-#### Option A — Create the `@shared` npm organization (recommended)
-
-1. Log in at [npmjs.com](https://www.npmjs.com)
-2. Go to **Account → Organizations → Create an organization**
-3. Name it **`shared`** (this creates the `@shared` scope)
-4. Choose the **free** plan for public packages
-
-#### Option B — Use your own npm username as scope
-
-If `@shared` is taken, rename the package in `package.json`:
-
-```json
-"name": "@illarock/ui"
-```
-
-Update imports in apps accordingly (`@illarock/ui/components/button`, etc.).
-
-#### Add an npm publish token to GitHub
-
-1. npm → **Access Tokens → Generate New Token → Granular Access Token**
-2. Permissions: **Read and write** for the `@shared` scope (or your org)
-3. GitHub repo → **Settings → Secrets and variables → Actions**
-4. Add secret: **`NPM_TOKEN`** = your token
-
-> OIDC trusted publishing (`No NPM_TOKEN found, but OIDC is available`) only works **after** the scope exists and you configure [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) on npm for this repo. Until then, use `NPM_TOKEN`.
-
-#### First publish checklist
-
-- [ ] `@shared` org exists on npm (or package renamed to your scope)
-- [ ] `NPM_TOKEN` secret added to GitHub
-- [ ] At least one `.changeset/*.md` file committed
-- [ ] `package-lock.json` committed and in sync with `package.json`
+1. Create `@shared` org at [npmjs.com/org/create](https://www.npmjs.com/org/create) (or rename package to `@yourscope/ui`)
+2. Add `NPM_TOKEN` to GitHub repo secrets (publish access to scope)
+3. Commit `package-lock.json` in sync with `package.json`
 
 ### Release flow
 
 ```
-1. Developer merges feature PR (with a changeset file)
-2. GitHub Action opens "Version Packages" PR
-3. Merge that PR          →  version bump + CHANGELOG.md
-4. GitHub Action publishes →  npm run build && changeset publish
-5. Apps                  →  npm install @shared/ui@x.y.z when ready
+1. Merge PR with .changeset/*.md
+2. CI opens "Version Packages" PR
+3. Merge it → version bump + CHANGELOG.md
+4. CI runs npm run release
+5. Apps install @shared/ui@x.y.z when ready
 ```
 
-If there are **no pending changesets**, the action opens nothing and does **not** publish.
-
-### Changeset example
-
-```bash
-npm run changeset
-# → patch | minor | major
-# → "Add Dialog component"
-```
-
-This creates a file like `.changeset/funny-llamas-jump.md`. Commit it with your PR.
-
-### Manual publish (first time or emergency)
+### Manual publish
 
 ```bash
 npm login
@@ -365,110 +288,49 @@ npm run build
 npm publish --access public
 ```
 
-> **Important:** After changing `package.json`, always run `npm install` locally and commit the updated `package-lock.json`. GitHub Actions uses `npm ci`, which requires both files to be in sync.
-
 ---
 
 ## CI/CD
 
-`.github/workflows/release.yml` runs on every push to `main`:
-
-1. Installs dependencies
-2. Builds the package
-3. Runs `changesets/action` — opens a "Version Packages" PR or publishes if versions were bumped
-
-Required secrets:
-
-| Secret | Purpose |
-|---|---|
-| `GITHUB_TOKEN` | Provided automatically |
-| `NPM_TOKEN` | npm publish token with access to `@shared` scope |
-
----
-
-## Multiple apps
-
-Each app is fully independent:
-
-```json
-// app1/package.json
-{ "dependencies": { "@shared/ui": "^1.2.0" } }
-
-// app2/package.json
-{ "dependencies": { "@shared/ui": "^1.0.0" } }
-```
-
-- **app1** gets new components when you bump and install.
-- **app2** stays on 1.x until you choose to upgrade.
-- Breaking changes ship as a **major** version with a changelog entry.
+| Workflow | Trigger | Action |
+|---|---|---|
+| `ci.yml` | PR + push to `main` | `npm ci`, build, typecheck |
+| `release.yml` | push to `main` | Changesets version PR or npm publish |
 
 ---
 
 ## Troubleshooting
 
-### Components look unstyled / no theme
-
-Use the **compiled** stylesheet — component utilities are pre-built at publish time:
+### Components look unstyled
 
 ```css
 @import "tailwindcss";
 @import "@shared/ui/styles.css";
-
 @source "./**/*.{ts,tsx}";
 ```
 
-**Do not use** `@source "../node_modules/@shared/ui/..."` — Tailwind v4 does not scan `node_modules` reliably.
+- Do **not** use `@source "../node_modules/@shared/ui/..."` — Tailwind v4 won't scan it
+- Do **not** import `@shared/ui/styles/globals.css` in layout
+- Reinstall after updating: `rm -rf node_modules/@shared/ui && npm install github:illarock/shared-ui`
 
-**Do not import** `@shared/ui/styles/globals.css` in `layout.tsx` — that is raw source CSS without component utilities. Only import `./globals.css` in your layout.
+### `Module not found: @shared/ui/button`
 
-After updating `shared-ui`, reinstall so `dist/styles.css` is rebuilt:
-
-```bash
-rm -rf node_modules/@shared/ui
-npm install github:illarock/shared-ui
-```
-
-### `Module not found: Can't resolve '@shared/ui/button'`
-
-1. Reinstall to trigger the build (`dist/` is not in git):
-   ```bash
-   rm -rf node_modules/@shared/ui
-   npm install github:illarock/shared-ui
-   ```
-2. Confirm `node_modules/@shared/ui/dist/components/button.js` exists
-3. Add `transpilePackages: ["@shared/ui"]` to `next.config.ts`
-4. Use `@shared/ui/button` or `@shared/ui/components/button`
-
-### npm publish fails with `E404 Not Found @shared/ui`
-
-The `@shared` scope is not registered on npm. Create the org at [npmjs.com/org/create](https://www.npmjs.com/org/create) named `shared`, or rename the package to your own scope (e.g. `@illarock/ui`). Then add `NPM_TOKEN` to GitHub secrets.
-
-### Tailwind classes from components are missing
-
-Make sure `app/globals.css` includes both `@source` directives — one for your app, one for the package:
-
-```css
-@source "./**/*.{ts,tsx}";
-@source "../node_modules/@shared/ui/dist/**/*.{js,ts,tsx}";
-```
-
-### `Module not found: @shared/ui/...`
-
-1. Confirm the package is installed: `npm ls @shared/ui`
+1. Confirm `node_modules/@shared/ui/dist/components/button.js` exists
 2. Add `transpilePackages: ["@shared/ui"]` to `next.config.ts`
-3. Rebuild the package if using a local link: `cd shared-ui && npm run build`
+3. Try `next build --webpack` if Turbopack can't resolve exports
+4. Reinstall to trigger `prepare` build
 
-### Styles look unstyled / no theme
+### shadcn `add` fails
 
-Confirm `app/layout.tsx` imports `./globals.css` and that `@import "@shared/ui/globals.css"` is the first line in that file.
+Run from repo root. Ensure `components.json` has `"utils": "#lib/utils"` (not a relative path).
 
-### shadcn `add` fails in this repo
+### npm publish `E404`
 
-Run commands from the **repository root** (where `components.json` lives). Ensure `src/lib/utils.ts` exists.
+The `@shared` scope doesn't exist on npm yet. Create the org or rename the package.
 
-### Type errors after upgrade
+### `npm ci` fails in CI
 
-Check the changelog for breaking changes. Major bumps may rename exports or change component props.
+Run `npm install` locally and commit the updated `package-lock.json`.
 
 ---
 
