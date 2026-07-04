@@ -282,21 +282,54 @@ npm run changeset   # document the change
 
 This project uses [Changesets](https://github.com/changesets/changesets) for semver and changelogs.
 
-### One-time setup
+### One-time npm setup (required before first publish)
 
-1. Create an npm organization or scope: `@shared` on [npmjs.com](https://www.npmjs.com)
-2. Add `NPM_TOKEN` to GitHub repository secrets
-3. Push to `main` — the release workflow handles the rest
+The `E404 Not Found - PUT @shared/ui` error means **the `@shared` scope does not exist on npm** (or your token cannot publish to it). Fix this before CI can publish:
+
+#### Option A — Create the `@shared` npm organization (recommended)
+
+1. Log in at [npmjs.com](https://www.npmjs.com)
+2. Go to **Account → Organizations → Create an organization**
+3. Name it **`shared`** (this creates the `@shared` scope)
+4. Choose the **free** plan for public packages
+
+#### Option B — Use your own npm username as scope
+
+If `@shared` is taken, rename the package in `package.json`:
+
+```json
+"name": "@illarock/ui"
+```
+
+Update imports in apps accordingly (`@illarock/ui/components/button`, etc.).
+
+#### Add an npm publish token to GitHub
+
+1. npm → **Access Tokens → Generate New Token → Granular Access Token**
+2. Permissions: **Read and write** for the `@shared` scope (or your org)
+3. GitHub repo → **Settings → Secrets and variables → Actions**
+4. Add secret: **`NPM_TOKEN`** = your token
+
+> OIDC trusted publishing (`No NPM_TOKEN found, but OIDC is available`) only works **after** the scope exists and you configure [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) on npm for this repo. Until then, use `NPM_TOKEN`.
+
+#### First publish checklist
+
+- [ ] `@shared` org exists on npm (or package renamed to your scope)
+- [ ] `NPM_TOKEN` secret added to GitHub
+- [ ] At least one `.changeset/*.md` file committed
+- [ ] `package-lock.json` committed and in sync with `package.json`
 
 ### Release flow
 
 ```
-1. Developer merges feature PR
-2. npm run changeset  →  creates .changeset/*.md describing the change
-3. Merge changeset PR →  version bump + CHANGELOG.md update
-4. GitHub Action      →  npm run build && changeset publish
-5. Apps               →  npm install @shared/ui@x.y.z when ready
+1. Developer merges feature PR (with a changeset file)
+2. GitHub Action opens "Version Packages" PR
+3. Merge that PR          →  version bump + CHANGELOG.md
+4. GitHub Action publishes →  npm run build && changeset publish
+5. Apps                  →  npm install @shared/ui@x.y.z when ready
 ```
+
+If there are **no pending changesets**, the action opens nothing and does **not** publish.
 
 ### Changeset example
 
@@ -308,9 +341,10 @@ npm run changeset
 
 This creates a file like `.changeset/funny-llamas-jump.md`. Commit it with your PR.
 
-### Manual publish (emergency)
+### Manual publish (first time or emergency)
 
 ```bash
+npm login
 npm run build
 npm publish --access public
 ```
@@ -355,6 +389,10 @@ Each app is fully independent:
 ---
 
 ## Troubleshooting
+
+### npm publish fails with `E404 Not Found @shared/ui`
+
+The `@shared` scope is not registered on npm. Create the org at [npmjs.com/org/create](https://www.npmjs.com/org/create) named `shared`, or rename the package to your own scope (e.g. `@illarock/ui`). Then add `NPM_TOKEN` to GitHub secrets.
 
 ### Tailwind classes from components are missing
 

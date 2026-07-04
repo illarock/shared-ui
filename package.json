@@ -1,6 +1,6 @@
 {
   "name": "@shared/ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Shared shadcn/ui component library for Next.js apps",
   "type": "module",
   "sideEffects": [
@@ -23,6 +23,7 @@
   },
   "publishConfig": {
     "access": "public",
+    "provenance": true,
     "registry": "https://registry.npmjs.org"
   },
   "imports": {
