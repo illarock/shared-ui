@@ -1,0 +1,35 @@
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background tracking-default text-foreground;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  p {
+    @apply text-xs leading-4_5 md:text-base md:leading-6;
+  }
+
+  ul,
+  ol {
+    li {
+      @apply text-xs leading-4_5 md:text-base md:leading-6;
+    }
+  }
+
+  .rdp-weeks tr:last-child td:first-child,
+  .rdp-weeks tr:last-child td:first-child button {
+    @apply rounded-bl-xl overflow-hidden;
+  }
+
+  .rdp-weeks tr:last-child td:last-child,
+  .rdp-weeks tr:last-child td:last-child button {
+    @apply rounded-br-xl overflow-hidden;
+  }
+}

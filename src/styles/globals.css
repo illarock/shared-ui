@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@plugin "@tailwindcss/typography";
+
+@import "./theme.css";
+@import "./base.css";
+@import "./components.css";
+@import "./utilities.css";

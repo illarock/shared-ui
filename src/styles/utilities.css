@@ -1,0 +1,221 @@
+@layer utilities {
+  /* 3xl */
+  /* @media (min-width: 1800px) {
+    .container {
+      max-width: 1800px;
+    }
+  } */
+
+  /* 3xl */
+  /* @media (min-width: 1728px) {
+    .container {
+      max-width: 1728px;
+    }
+  } */
+  /* 
+  @media (min-width: 1672px) {
+    .container {
+      max-width: 1672px;
+    }
+  } */
+
+  .prose {
+    @apply flex w-full max-w-none flex-col gap-y-3 lg:gap-y-6 prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-default;
+    --tw-prose-body: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-quotes: var(--foreground);
+    --tw-prose-bold: var(--foreground);
+  }
+
+  .prose :where(p) {
+    @apply leading-[1.63em];
+  }
+
+  .prose :where(h1, h2, h3, h4, h5, h6) {
+    @apply my-0;
+  }
+
+  .prose :where(p, blockquote, ul, ol, pre) {
+    @apply my-0;
+  }
+
+  .prose :where(h1, h2, h3, h4, h5, h6),
+  .prose-h1,
+  .prose-h2,
+  .prose-h3,
+  .prose-h4,
+  .prose-h5,
+  .prose-h6 {
+    @apply font-serif font-bold tracking-default;
+  }
+
+  .prose :where(p, blockquote, ul, ol, pre) {
+    @apply tracking-default;
+  }
+
+  .prose :where(h1),
+  .prose-h1 {
+    @apply text-4xl sm:text-[3.75rem];
+  }
+
+  .prose :where(h2),
+  .prose-h2 {
+    @apply text-3xl sm:text-[2.5rem];
+  }
+
+  .prose :where(h3),
+  .prose-h3 {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  .prose :where(h4),
+  .prose-h4 {
+    @apply text-xl sm:text-[1.563rem];
+  }
+
+  .prose :where(h5),
+  .prose-h5 {
+    @apply text-[0.813rem] sm:text-xl;
+  }
+
+  .prose :where(h6),
+  .prose-h6 {
+    /* @apply text-[0.625rem] sm:text-base; */
+    @apply text-[0.75rem] sm:text-base;
+  }
+
+  .prose a {
+    @apply text-primary;
+  }
+
+  .heading-font {
+    @apply font-serif tracking-default;
+  }
+
+  .scrollable {
+    @apply pr-4 scrollbar-thin scrollbar-thumb-scrollbar lg:pr-10;
+  }
+
+  .transition-base {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .rounded-modal {
+    @apply rounded-modal-mobile lg:rounded-modal-desktop;
+  }
+
+  .walkthrough-highlight:not(#cards) {
+    @apply z-60;
+  }
+
+  #hero.walkthrough-highlight,
+  #card-list.walkthrough-highlight {
+    @apply relative;
+  }
+
+  #cards.walkthrough-highlight {
+    @apply relative;
+  }
+
+  #cards.walkthrough-highlight [aria-roledescription="sortable"] {
+    @apply z-10;
+  }
+
+  #cards.walkthrough-highlight
+    [aria-roledescription="sortable"]:nth-of-type(-n + 4) {
+    @apply relative z-62;
+  }
+
+  #cards.walkthrough-highlight .highlighted:after {
+    @apply absolute inset-x-0 top-24 z-60 block h-[260px] w-full bg-muted content-[''];
+  }
+
+  #cards.walkthrough-highlight.walkthrough-category
+    [aria-roledescription="sortable"]:nth-of-type(-n + 4)
+    .is-highlighted::after {
+    @apply absolute -inset-x-2 top-0 block h-full w-[calc(100%_+_16px)] rounded-lg bg-primary/10 content-[''];
+  }
+
+  #cards.walkthrough-highlight.walkthrough-details
+    [aria-roledescription="sortable"]:nth-of-type(-n + 4)
+    .is-detailed::after {
+    @apply absolute -inset-x-2 -inset-y-1 block h-[calc(100%_+_8px)] w-[calc(100%_+_16px)] rounded-lg bg-primary/10 content-[''];
+  }
+
+  #cards.walkthrough-highlight.walkthrough-category
+    [aria-roledescription="sortable"]:nth-of-type(-n + 4)
+    .is-highlighted,
+  #cards.walkthrough-highlight.walkthrough-details
+    [aria-roledescription="sortable"]:nth-of-type(-n + 4)
+    .is-detailed
+    * {
+    @apply relative z-10;
+  }
+
+  .my-time-input::-webkit-datetime-edit-ampm-field {
+    color: white;
+    line-height: 2;
+  }
+
+  /* Add background color (e.g., blue) */
+  .my-time-input::-webkit-datetime-edit-ampm-field {
+    display: none;
+  }
+
+  .my-time-input::-webkit-calendar-picker-indicator {
+    display: none;
+  }
+
+  /* Optional: change hour/minute styles too */
+  /* .my-time-input::-webkit-datetime-edit-hour-field,
+  .my-time-input::-webkit-datetime-edit-minute-field {
+    color: #000;
+  } */
+
+  /* .tiptap.ProseMirror {
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    p > img {
+      display: inline-block;
+    }
+
+    > img:not([data-type="emoji"] img) {
+      margin: 2rem 0;
+      outline: 0.125rem solid transparent;
+      border-radius: var(--tt-radius-xs, 0.25rem);
+    }
+
+    img:not([data-type="emoji"] img).ProseMirror-selectednode {
+      outline-color: var(--tt-brand-color-500);
+    }
+
+    .tiptap-thread:has(> img) {
+      margin: 2rem 0;
+
+      img {
+        outline: 0.125rem solid transparent;
+        border-radius: var(--tt-radius-xs, 0.25rem);
+      }
+    }
+
+    .tiptap-thread img {
+      margin: 0;
+    }
+  } */
+
+  .ProseMirror p.is-editor-empty::before {
+    @apply absolute text-muted/20 content-[attr(data-placeholder)];
+  }
+
+  .ProseMirror p.is-editor-empty[style*="text-align: right"]::before {
+    @apply right-0 left-auto;
+  }
+
+  .ProseMirror p.is-editor-empty[style*="text-align: center"]::before {
+    @apply right-0 left-0;
+  }
+}

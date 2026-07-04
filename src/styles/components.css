@@ -1,0 +1,22 @@
+@layer components {
+  /* .prose {
+    h1 {
+      @apply text-[2.986rem] md:text-[3.815rem] font-semibold tracking-tight;
+    }
+    h2 {
+      @apply text-[2.488rem] md:text-[3.052rem] font-semibold tracking-tight;
+    }
+    h3 {
+      @apply text-[2.074rem] md:text-[2.441rem] font-semibold tracking-tight;
+    }
+    h4 {
+      @apply text-[1.728rem] md:text-[1.953rem] font-semibold tracking-tight;
+    }
+    h5 {
+      @apply text-[1.44rem] md:text-[1.563rem] font-semibold tracking-tight;
+    }
+    h6 {
+      @apply text-[1.2rem] md:text-[1.25rem] font-semibold tracking-tight;
+    }
+  } */
+}
