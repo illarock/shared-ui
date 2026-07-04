@@ -39,8 +39,22 @@ Each app pins its own version. You ship UI changes on a schedule that does not b
 
 ### 1. Install the package
 
+**From npm (recommended):**
+
 ```bash
 npm install @shared/ui
+```
+
+**From GitHub:**
+
+```bash
+npm install github:illarock/shared-ui
+```
+
+The `prepare` script builds `dist/` automatically on install. Re-install after updates:
+
+```bash
+npm install github:illarock/shared-ui --force
 ```
 
 Peer dependencies are installed automatically (`react`, `react-dom`, `tailwindcss`). The package bundles its own runtime deps (`clsx`, `radix-ui`, `shadcn`, etc.).
@@ -105,14 +119,14 @@ import "./globals.css";
 ### 6. Use components
 
 ```tsx
-import { Button } from "@shared/ui/components/button";
+import { Button } from "@shared/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@shared/ui/components/card";
+} from "@shared/ui/card";
 
 export default function Page() {
   return (
@@ -129,6 +143,8 @@ export default function Page() {
 }
 ```
 
+Shorthand imports (`@shared/ui/button`) and explicit paths (`@shared/ui/components/button`) both work.
+
 ---
 
 ## Package exports
@@ -137,7 +153,8 @@ export default function Page() {
 |---|---|
 | `@shared/ui/globals.css` | Full stylesheet entry (Tailwind + theme) |
 | `@shared/ui/styles/*` | Individual style partials (`theme.css`, `base.css`, …) |
-| `@shared/ui/components/<name>` | UI component (e.g. `button`, `card`) |
+| `@shared/ui/button` | Shorthand for a component |
+| `@shared/ui/components/<name>` | Explicit component path |
 | `@shared/ui/lib/utils` | `cn()` helper |
 | `@shared/ui/hooks/*` | Shared hooks (when added) |
 
@@ -389,6 +406,17 @@ Each app is fully independent:
 ---
 
 ## Troubleshooting
+
+### `Module not found: Can't resolve '@shared/ui/button'`
+
+1. Reinstall to trigger the build (`dist/` is not in git):
+   ```bash
+   rm -rf node_modules/@shared/ui
+   npm install github:illarock/shared-ui
+   ```
+2. Confirm `node_modules/@shared/ui/dist/components/button.js` exists
+3. Add `transpilePackages: ["@shared/ui"]` to `next.config.ts`
+4. Use `@shared/ui/button` or `@shared/ui/components/button`
 
 ### npm publish fails with `E404 Not Found @shared/ui`
 
